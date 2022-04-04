@@ -29,7 +29,7 @@ conn.connect((err) => {
  */
 
 app.get('/api/cars', (req, res) => {
-    let sqlQuery = 'select * from cars';
+    let sqlQuery = 'select * from cars ORDER BY cID DESC';
 
     let query = conn.query(sqlQuery, (err, results) => {
         if (err) throw err;
@@ -58,7 +58,6 @@ app.get('/api/items/:id', (req, res) => {
  * @return response()
  */
 app.post('/api/cars', (req, res) => {
-    console.log(req.body)
     let data = {
         cName: req.body.cName,
         cModel: req.body.cModel,
@@ -79,8 +78,8 @@ app.post('/api/cars', (req, res) => {
  *
  * @return response()
  */
-app.put('/api/items/:id', (req, res) => {
-    let sqlQuery = "UPDATE items SET title='" + req.body.title + "', body='" + req.body.body + "' WHERE id=" + req.params.id;
+app.put('/api/cars/:id', (req, res) => {
+    let sqlQuery = "UPDATE cars SET isSold = 1 where cID = " + req.params.id;
 
     let query = conn.query(sqlQuery, (err, results) => {
         if (err) throw err;

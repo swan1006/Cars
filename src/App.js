@@ -33,9 +33,9 @@ const App = () => {
       title: 'state',
       dataIndex: 'isSold',
       key: 'sold',
-      render: isSold => (
+      render: (text, record) => (
         <>
-          {isSold > 0 ? <a>Sold</a> : <a>Sell</a>}
+          {record.isSold > 0 ? <a>Sold</a> : <a onClick={() => sellCar(record.cID)}>Sell</a>}
         </>
       )
     },
@@ -44,22 +44,22 @@ const App = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   const showModal = () => {
+    form.setFieldsValue({
+      cName: '',
+      cModel: '',
+      cPrice: '',
+      cSku: ''
+    });
     setIsModalVisible(true);
   };
 
-  const handleOk = () => {
-    setIsModalVisible(false);
-  };
-
-  const handleCancel = () => {
-    setIsModalVisible(false);
-  };
+  const [form] = Form.useForm();
 
   const onFinish = (values) => {
     console.log('Success:', values);
     axios.post('/api/cars', values)
       .then(res => {
-        console.log(res);
+        setIsModalVisible(false);
         console.log(res.data);
       })
   };
@@ -67,6 +67,17 @@ const App = () => {
   const onFinishFailed = (errorInfo) => {
     console.log('Failed:', errorInfo);
   };
+
+  const sellCar = (id) => {
+    axios.put('/api/cars/' + id)
+      .then(res => {
+        axios.get('/api/cars')
+          .then(res => {
+            console.log(res.data.response);
+            setDataSource(res.data.response);
+          })
+      })
+  }
 
   useEffect(() => {
     axios.get('/api/cars')
@@ -77,16 +88,17 @@ const App = () => {
   });
 
   return (
-    <div className='app'>
+    <div className='app' style={{ marginTop: 100 }}>
       <Row>
         <Col span={18} offset={3}>
-          <Button type="primary" onClick={showModal}>Add Car</Button>
-          <Modal title="Add new car" visible={isModalVisible} onOk={handleOk} onCancel={handleCancel}>
+          <Button type="primary" onClick={showModal}>Add new Car</Button>
+          <Modal title="Add new car" visible={isModalVisible} footer={null}>
             <Form
+              form={form}
               name="basic"
               labelCol={{ span: 8 }}
               wrapperCol={{ span: 12 }}
-              initialValues={{ remember: true }}
+              initialValues={{ remember: false }}
               onFinish={onFinish}
               onFinishFailed={onFinishFailed}
               autoComplete="off"
